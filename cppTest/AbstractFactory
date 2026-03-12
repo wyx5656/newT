@@ -1,0 +1,168 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// 图形基类
+class Figure {
+public:
+    virtual void display() = 0;
+    virtual double area() = 0;
+    virtual ~Figure() {}
+};
+
+// 二维图形
+class TwoDFigure : public Figure {
+public:
+    virtual ~TwoDFigure() {}
+};
+
+class Rectangle : public TwoDFigure {
+private:
+    double width, height;
+public:
+    Rectangle(double w = 1.0, double h = 1.0) : width(w), height(h) {}
+    
+    void display() override {
+        cout << "Rectangle: " << width << " x " << height << endl;
+    }
+    
+    double area() override {
+        return width * height;
+    }
+};
+
+class Circle : public TwoDFigure {
+private:
+    double radius;
+public:
+    Circle(double r = 1.0) : radius(r) {}
+    
+    void display() override {
+        cout << "Circle: radius = " << radius << endl;
+    }
+    
+    double area() override {
+        const double PI = 3.14159265359;
+        return PI * radius * radius;
+    }
+};
+
+// 三维图形
+class ThreeDFigure : public Figure {
+public:
+    virtual double volume() = 0;  // 三维图形特有的体积计算
+    virtual ~ThreeDFigure() {}
+};
+
+class Cube : public ThreeDFigure {
+private:
+    double side;
+public:
+    Cube(double s = 1.0) : side(s) {}
+    
+    void display() override {
+        cout << "Cube: side = " << side << endl;
+    }
+    
+    double area() override {
+        return 6 * side * side;  // 表面积
+    }
+    
+    double volume() override {
+        return side * side * side;  // 体积
+    }
+};
+
+class Sphere : public ThreeDFigure {
+private:
+    double radius;
+public:
+    Sphere(double r = 1.0) : radius(r) {}
+    
+    void display() override {
+        cout << "Sphere: radius = " << radius << endl;
+    }
+    
+    double area() override {
+        const double PI = 3.14159265359;
+        return 4 * PI * radius * radius;  // 表面积
+    }
+    
+    double volume() override {
+        const double PI = 3.14159265359;
+        return (4.0/3.0) * PI * radius * radius * radius;  // 体积
+    }
+};
+
+// 抽象工厂接口
+class AbstractFactory {
+public:
+    virtual TwoDFigure* create2D() = 0;
+    virtual ThreeDFigure* create3D() = 0;
+    virtual ~AbstractFactory() {}
+};
+
+// 具体工厂：矩形和立方体工厂
+class RectangleCubeFactory : public AbstractFactory {
+public:
+    TwoDFigure* create2D() override {
+        return new Rectangle(2.0, 3.0);
+    }
+    
+    ThreeDFigure* create3D() override {
+        return new Cube(2.0);
+    }
+};
+
+// 具体工厂：圆形和球体工厂
+class CircleSphereFactory : public AbstractFactory {
+public:
+    TwoDFigure* create2D() override {
+        return new Circle(2.0);
+    }
+    
+    ThreeDFigure* create3D() override {
+        return new Sphere(2.0);
+    }
+};
+
+// 使用示例
+void testAbstractFactory() {
+    cout << "\n=== 抽象工厂模式测试 ===" << endl;
+    
+    // 使用矩形立方体工厂
+    AbstractFactory* rectCubeFactory = new RectangleCubeFactory();
+    TwoDFigure* rect = rectCubeFactory->create2D();
+    ThreeDFigure* cube = rectCubeFactory->create3D();
+    
+    cout << "From RectangleCubeFactory:" << endl;
+    rect->display();
+    cout << "Area: " << rect->area() << endl;
+    cube->display();
+    cout << "Surface Area: " << cube->area() << ", Volume: " << dynamic_cast<Sphere*>(cube)->volume() << endl;
+    
+    // 使用圆形球体工厂
+    AbstractFactory* circleSphereFactory = new CircleSphereFactory();
+    TwoDFigure* circle = circleSphereFactory->create2D();
+    ThreeDFigure* sphere = circleSphereFactory->create3D();
+    
+    cout << "\nFrom CircleSphereFactory:" << endl;
+    circle->display();
+    cout << "Area: " << circle->area() << endl;
+    sphere->display();
+    cout << "Surface Area: " << sphere->area() << ", Volume: " << dynamic_cast<Sphere*>(sphere)->volume() << endl;
+    
+    // 清理资源
+    delete rect;
+    delete cube;
+    delete circle;
+    delete sphere;
+    delete rectCubeFactory;
+    delete circleSphereFactory;
+}
+
+int main() {
+    testFactoryMethod();
+    testAbstractFactory();
+    return 0;
+}
